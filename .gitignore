@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# PlatformIO / firmware
+.pio/
+.pioenvs/
+.piolibdeps/
+firmware/**/build/
+
+# CAD 生成产物（保留源文件，忽略导出件）
+cad/**/*.stl
+cad/**/*.gcode
+cad/**/*.3mf
+
+# 编辑器 / 系统
+.vscode/
+.idea/
+.DS_Store
+*.swp

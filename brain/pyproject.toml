@@ -1,0 +1,20 @@
+[project]
+name = "eva-brain"
+version = "0.1.0"
+description = "EVA 模块化机器人 —— 树莓派大脑侧"
+requires-python = ">=3.10"
+
+# 协议骨架（eva.protocol）仅用标准库，无需第三方依赖即可运行自测：
+#   python -m eva.protocol.codec
+dependencies = []
+
+[project.optional-dependencies]
+# 阶段1按需启用（在树莓派上安装）：
+#   pyserial   —— SerialTransport
+#   opencv-python / picamera2 —— CameraModule
+#   sounddevice / numpy        —— Mic/Speaker
+stage1 = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["eva*"]
