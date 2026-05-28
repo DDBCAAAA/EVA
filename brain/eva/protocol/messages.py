@@ -6,6 +6,7 @@
 from __future__ import annotations
 
 import json
+import struct
 from dataclasses import dataclass, field, asdict
 from enum import IntEnum
 
@@ -91,3 +92,17 @@ class Frame:
     seq: int = 0
     payload: bytes = b""
     ver: int = PROTOCOL_VERSION
+
+
+# COMMAND / TELEMETRY 标量负载约定（阶段1）：endpoint_id(1B) + 有符号 int16(LE)。
+# 覆盖 motor.dc / motor.servo / sensor.encoder 等标量端点；后续如需结构化负载再扩展。
+_SCALAR_FMT = "<Bh"
+
+
+def pack_endpoint_scalar(endpoint_id: int, value: int) -> bytes:
+    return struct.pack(_SCALAR_FMT, endpoint_id & 0xFF, int(value))
+
+
+def unpack_endpoint_scalar(payload: bytes) -> tuple[int, int]:
+    endpoint_id, value = struct.unpack(_SCALAR_FMT, payload[:struct.calcsize(_SCALAR_FMT)])
+    return endpoint_id, value

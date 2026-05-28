@@ -18,6 +18,8 @@ from eva.protocol.messages import SOF, Frame, MsgType
 # 不含 SOF 的固定头部长度：VER SRC DST TYPE SEQ LEN
 _HEADER_LEN = 6
 _CRC_LEN = 2
+_LEN_OFFSET = 1 + _HEADER_LEN - 1   # buf 中 LEN 字节的下标（SOF 后第 6 字节）
+_MIN_FRAME = 1 + _HEADER_LEN + _CRC_LEN  # 最短帧（空负载）= 9
 MAX_PAYLOAD = 255
 
 
@@ -83,6 +85,42 @@ def decode(data: bytes) -> Frame:
         payload=payload,
         ver=ver,
     )
+
+
+class FrameParser:
+    """流式帧解析器：喂入任意分片的字节流，吐出已完整且 CRC 通过的帧。
+
+    负责处理串口/socket 上常见的三种情况：分片到达、多帧粘连、噪声错位。
+    遇到非 SOF 字节会丢弃直到对齐；遇到 CRC 失败会丢掉这个伪 SOF 并重新寻找下一个。
+    """
+
+    def __init__(self) -> None:
+        self._buf = bytearray()
+
+    def feed(self, data: bytes) -> list[Frame]:
+        self._buf.extend(data)
+        frames: list[Frame] = []
+        buf = self._buf
+        while True:
+            sof = buf.find(SOF)
+            if sof == -1:          # 全是噪声，丢弃
+                buf.clear()
+                break
+            if sof > 0:            # 丢弃 SOF 之前的噪声
+                del buf[:sof]
+            if len(buf) < _MIN_FRAME:
+                break              # 头部还没收齐，等更多字节
+            total = _MIN_FRAME + buf[_LEN_OFFSET]
+            if len(buf) < total:
+                break              # 负载还没收齐，等更多字节
+            try:
+                frame = decode(bytes(buf[:total]))
+            except FrameError:
+                del buf[:1]        # 伪 SOF，丢一字节后重新对齐
+                continue
+            frames.append(frame)
+            del buf[:total]
+        return frames
 
 
 def _selftest() -> None:

@@ -12,8 +12,10 @@ from eva.protocol.messages import (
     Endpoint,
     CapabilityDescriptor,
     Frame,
+    pack_endpoint_scalar,
+    unpack_endpoint_scalar,
 )
-from eva.protocol.codec import crc16_ccitt, encode, decode, FrameError
+from eva.protocol.codec import crc16_ccitt, encode, decode, FrameError, FrameParser
 
 __all__ = [
     "PROTOCOL_VERSION",
@@ -24,8 +26,11 @@ __all__ = [
     "Endpoint",
     "CapabilityDescriptor",
     "Frame",
+    "pack_endpoint_scalar",
+    "unpack_endpoint_scalar",
     "crc16_ccitt",
     "encode",
     "decode",
     "FrameError",
+    "FrameParser",
 ]

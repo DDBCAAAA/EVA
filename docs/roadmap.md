@@ -13,10 +13,19 @@
 
 目标：Pi 大脑 + 底座（ESP32 + 1 电机） + 摄像头/mic/speaker，跑通本地交互回路，**无需联网**。
 
-- [ ] `firmware/modules/module1_base`：ESP32 固件，驱动电机、实现 ANNOUNCE/COMMAND/TELEMETRY/HEARTBEAT
-- [ ] `brain/eva/transport`：`SerialTransport`（USB/UART）落地
-- [ ] `brain/eva/core/manager`：发现/注册/路由落地
-- [ ] `brain/eva/modules`：`CameraModule`/`MicModule`/`SpeakerModule`（本地）+ 电机远程代理
+无硬件部分已先行落地（等板子期间用模拟器开发）：
+
+- [x] `brain/eva/transport`：`StreamTransport` + `SocketTransport` + `SerialTransport`（pyserial 延迟导入）
+- [x] `brain/eva/core/manager`：发现/注册/路由/遥测落地
+- [x] `brain/eva/core/module`：`RemoteModule` 端点代理（按能力描述符动态构建）
+- [x] `brain/eva/sim`：`BaseModuleSimulator` + 端到端演示（`python -m eva.sim`）
+- [x] 测试：协议分片/粘连/错位恢复 + 大脑↔模块全链路（`python -m unittest`）
+
+待硬件到货：
+
+- [ ] `firmware/modules/module1_base`：ESP32 固件，驱动电机、实现 ANNOUNCE/COMMAND/TELEMETRY/HEARTBEAT（行为对齐模拟器）
+- [ ] 把编排里的 `SocketTransport` 换成 `SerialTransport`，接真实底座
+- [ ] `brain/eva/modules`：`CameraModule`/`MicModule`/`SpeakerModule`（本地）
 - [ ] 一个最小行为回路（如：看到人脸 → 电机转向 → 说一句话）
 - [ ] `cad/module1-base`：外壳与 EVA Mount 实体建模并打印
 
